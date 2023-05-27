@@ -2,20 +2,22 @@
 ## Парсер документации Python
 
 ### Как запустить проект:
-# Запуск и работа с проектом
 Чтобы развернуть проект, вам потребуется:
 1) Клонировать репозиторий GitHub (не забываем создать виртуальное окружение и установить зависимости):
 ```python
 git clone https://github.com/AlDzu/foodgram-project-react
+```
+
 2) Cоздать и активировать виртуальное окружение:
 ```python
 python3 -m venv venv
 source venv/bin/activate
+```
 3) Установить зависимости:
 ```python
 python3 -m pip install --upgrade pip
 pip install -r requirements.txt
-
+```
 ## Примеры команд
 Вывод информации нововведениях в python:
 ```
