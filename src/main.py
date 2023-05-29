@@ -14,6 +14,11 @@ from outputs import control_output
 from utils import get_response, find_tag
 
 
+def make_soup(response):
+    soup = BeautifulSoup(response.text, 'lxml')
+    return soup
+
+
 def pep(session):
     response = get_response(session, PEP_DOC_URL)
     pep_counter = {
@@ -34,7 +39,7 @@ def pep(session):
     # вынос заголовка закоменчен в outputs и здесь
     if response is None:
         return
-    soup = BeautifulSoup(response.text, 'lxml')
+    soup = make_soup(response)
     tr_tags = soup.find_all('tr', {'class': 'row-even'})
 
     for tr_tag in tqdm(tr_tags):
@@ -46,7 +51,7 @@ def pep(session):
         a_tag = tr_tag.find_all('a')
         pep_url = urljoin(PEP_DOC_URL, a_tag[0]['href'])
         response_pep = get_response(session, pep_url)
-        pep_soup = BeautifulSoup(response_pep.text, 'lxml')
+        pep_soup = make_soup(response_pep)
         pep_status = pep_soup.find('abbr').text
         if preview_status not in EXPECTED_STATUS:
             logging.info(
@@ -78,10 +83,9 @@ def pep(session):
 def whats_new(session):
     whats_new_url = urljoin(MAIN_DOC_URL, 'whatsnew/')
     response = get_response(session, whats_new_url)
-    # Не совсем понял где дулирование происходит?
     if response is None:
         return
-    soup = BeautifulSoup(response.text, features='lxml')
+    soup = make_soup(response)
     main_div = find_tag(soup, 'section', attrs={'id': 'what-s-new-in-python'})
     div_with_ul = main_div.find('div', attrs={'class': 'toctree-wrapper'})
     sections_by_python = div_with_ul.find_all(
@@ -95,7 +99,7 @@ def whats_new(session):
         section_response = get_response(session, version_link)
         if section_response is None:
             continue
-        soup = BeautifulSoup(section_response.text, features='lxml')
+        soup = make_soup(section_response)
         h1 = find_tag(soup, 'h1')
         dl = soup.find('dl')
         dl_text = dl.text.replace('\n', ' ')
@@ -108,7 +112,7 @@ def latest_versions(session):
     response = get_response(session, MAIN_DOC_URL)
     if response is None:
         return
-    soup = BeautifulSoup(response.text, 'lxml')
+    soup = make_soup(response)
     sidebar = soup.find('div', {'class': 'sphinxsidebarwrapper'})
     ul_tags = sidebar.find_all('ul')
     for ul in ul_tags:
@@ -138,7 +142,7 @@ def download(session):
     response = get_response(session, downloads_url)
     if response is None:
         return
-    soup = BeautifulSoup(response.text, features='lxml')
+    soup = make_soup(response)
     main_tag = soup.find('div', {'role': 'main'})
     table_tag = main_tag.find('table', {'class': 'docutils'})
     pdf_a4_tag = table_tag.find('a', {'href': re.compile(r'.+pdf-a4\.zip$')})
@@ -172,8 +176,10 @@ def main():
     if args.clear_cache:
         session.cache.clear()
     parser_mode = args.mode
-    results = MODE_TO_FUNCTION[parser_mode](session)
-
+    if parser_mode in MODE_TO_FUNCTION:
+        results = MODE_TO_FUNCTION[parser_mode](session)
+    else:
+        logging.info(f'Неизвестная команда {parser_mode}')
     if results is not None:
         control_output(results, args)
     logging.info('Парсер завершил работу.')
