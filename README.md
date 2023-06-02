@@ -5,7 +5,7 @@
 Чтобы развернуть проект, вам потребуется:
 1) Клонировать репозиторий GitHub (не забываем создать виртуальное окружение и установить зависимости):
 ```python
-git clone https://github.com/AlDzu/foodgram-project-react
+git clone https://github.com/AlDzu/bs4_parser_pep
 ```
 
 2) Cоздать и активировать виртуальное окружение:
